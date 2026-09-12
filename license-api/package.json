@@ -1,0 +1,25 @@
+{
+  "name": "ik-komuta-merkezi-lisans-api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "IK Komuta Merkezi - lisans dogrulama alt sistemi (bkz. claude-code-talimati.md Bolum 7). AYRI, KUCUK bir servis: TUM musteriler icin ortak, kurucunun kendi Vercel/Turso hesabinda barinir. Musteri verisini ASLA tutmaz - sadece lisans anahtari/durum/gecerlilik tarihi.",
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "license:create": "tsx scripts/create-license.ts",
+    "license:renew": "tsx scripts/renew-license.ts",
+    "license:list": "tsx scripts/list-licenses.ts"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.17.4",
+    "drizzle-orm": "^0.45.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "drizzle-kit": "^0.31.10",
+    "dotenv": "^17.4.2",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2"
+  }
+}

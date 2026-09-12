@@ -1,0 +1,71 @@
+/* ---------------------------------------------------------------------------
+   Urun arayuzu (/panel, /admin) tasarim tokenleri.
+   Kaynak: claude-code-talimati.md Bolum 10-A ("Urun arayuzu" palet).
+   Pazarlama sitesi (tanitim-sayfasi.html) AYRI bir kimlik tasir, buraya
+   kopyalanmaz (bkz. Bolum 10).
+   --------------------------------------------------------------------------- */
+
+:root {
+  --ink: #1b2333;
+  --paper: #f8f5ec;
+  --paper-deep: #e9e4d6;
+  --thread: #d4a017;
+  --thread-deep: #9c7418;
+  --denim: #2a4f82;
+  --brick: #b23a2e;
+  --pine: #327355;
+  --indigo: #4b3f86;
+  --line: #ded6c2;
+  /* tasarim.md kontrol listesi madde 2: her kartin ortak golgesi - tek yerden
+     yonetilsin diye token olarak tutuluyor, kart bilesenleri boxShadow:"var(--card-shadow)" kullanir. */
+  --card-shadow: 0 12px 28px -18px rgba(27, 35, 51, 0.25);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+body {
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+.disp {
+  font-family: var(--font-archivo), ui-sans-serif, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.mono {
+  font-family: var(--font-space-mono), ui-monospace, monospace;
+}
+
+a {
+  color: inherit;
+}
+
+/* Patron Raporu (Bolum 8): window.print() ile PDF alinirken gezinme/aksiyon
+   elemanlari (cikis butonu, "Yazdir" butonunun kendisi vb.) sayfada gorunmemeli. */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Genel Rapor/Sunum PDF Disa Aktarma (Bolum 5 madde 17): tek bir bolumu disa
+   aktarirken eklenen baslik (sirket adi + bolum basligi + tarih) sadece
+   yazdirma ciktisinda gorunur, ekranda hic yer kaplamaz. */
+.print-only-header {
+  display: none;
+}
+@media print {
+  .print-only-header {
+    display: block;
+  }
+}

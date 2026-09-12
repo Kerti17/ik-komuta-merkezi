@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>İK Komuta Merkezi — Saha ve Ofis Çalışanı Olan Firmalar İçin Karar Destek Paneli</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #0A0D14;
+    --bg-alt: #0D111A;
+    --surface: #12161F;
+    --surface-hi: #171C27;
+    --border: rgba(255,255,255,0.09);
+    --border-hi: rgba(255,255,255,0.18);
+    --text: #F2F3F7;
+    --text-dim: #9298AA;
+    --text-dimmer: #5B6274;
+    --accent: #7C7FFF;
+    --accent-dim: rgba(124,127,255,0.14);
+    --accent-line: rgba(124,127,255,0.35);
+    --gold: #E8B33D;
+    --coral: #E2665A;
+    --mint: #4FCB92;
+    --sky: #5B9CF6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    line-height: 1.5; -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .disp { font-family: 'Archivo', ui-sans-serif, sans-serif; letter-spacing: -0.015em; }
+  .mono { font-family: 'Space Mono', ui-monospace, monospace; }
+  a { color: inherit; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  section { padding: 100px 0; position: relative; }
+  @media (max-width: 700px) { section { padding: 60px 0; } }
+
+  /* background grid texture */
+  .bg-grid {
+    position: fixed; inset: 0; z-index: -2; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 90%);
+  }
+
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  /* ---------- Nav ---------- */
+  .nav { position: sticky; top: 0; z-index: 50; background: rgba(10,13,20,0.72); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); transition: border-color .2s ease; }
+  .nav.scrolled { border-bottom-color: var(--border-hi); }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; padding: 15px 24px; max-width: 1120px; margin: 0 auto; }
+  .nav-logo { display: flex; align-items: center; gap: 10px; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 15.5px; color: var(--text); }
+  .spool { display: flex; }
+  .spool span { width: 8px; height: 8px; border-radius: 50%; margin-left: -3px; border: 1.5px solid var(--bg); }
+  .spool span:first-child { margin-left: 0; }
+  .nav-links { display: flex; align-items: center; gap: 28px; }
+  @media (max-width: 760px) { .nav-links-inner { display: none; } }
+  .nav-link { font-size: 13.5px; font-weight: 500; color: var(--text-dim); text-decoration: none; }
+  .nav-link:hover { color: var(--text); }
+  .nav-cta {
+    font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.03em;
+    background: var(--accent); color: #0A0D14; padding: 10px 18px; border-radius: 6px; text-decoration: none; white-space: nowrap;
+    box-shadow: 0 0 0 1px var(--accent-line), 0 4px 14px -4px rgba(124,127,255,0.5);
+  }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 68px 0 0; position: relative; }
+  .hero-glow {
+    position: absolute; top: -220px; left: 50%; transform: translateX(-50%); width: 900px; height: 640px; z-index: 0; pointer-events: none;
+    background: radial-gradient(ellipse at center, rgba(124,127,255,0.20), rgba(91,156,246,0.08) 45%, transparent 72%);
+    filter: blur(20px);
+  }
+  .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; position: relative; z-index: 1; }
+  @media (max-width: 940px) { .hero-grid { grid-template-columns: 1fr; } }
+  .eyebrow { font-family: 'Space Mono', monospace; font-size: 11.5px; font-weight: 700; letter-spacing: 0.14em; color: var(--accent); text-transform: uppercase; margin-bottom: 20px; display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 10px; background: var(--accent-dim); border: 1px solid var(--accent-line); border-radius: 20px; }
+  .eyebrow .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 3px rgba(79,203,146,0.2); }
+  h1.hero-title { font-size: clamp(32px, 4.4vw, 49px); font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 22px; color: var(--text); }
+  h1.hero-title em { font-style: normal; background: linear-gradient(120deg, var(--gold), var(--coral)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero-sub { font-size: 17px; color: var(--text-dim); max-width: 520px; margin-bottom: 30px; line-height: 1.65; }
+  .cta-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  .btn-primary, .btn-secondary { font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; padding: 14px 24px; border-radius: 7px; text-decoration: none; display: inline-block; transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease; }
+  .btn-primary { background: var(--accent); color: #0A0D14; box-shadow: 0 0 0 1px var(--accent-line), 0 8px 24px -8px rgba(124,127,255,0.6); }
+  .btn-secondary { background: rgba(255,255,255,0.03); color: var(--text); border: 1px solid var(--border-hi); }
+  .btn-primary:hover, .btn-secondary:hover { transform: translateY(-2px); }
+  .btn-primary:hover { box-shadow: 0 0 0 1px var(--accent-line), 0 12px 30px -8px rgba(124,127,255,0.75); }
+  .btn-secondary:hover { border-color: rgba(255,255,255,0.35); }
+  .hero-note { font-size: 12.5px; color: var(--text-dimmer); display: flex; align-items: center; gap: 6px; }
+  .hero-note svg { flex-shrink: 0; }
+
+  /* Browser-chrome product mockup */
+  .browser-chrome { background: var(--surface); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 40px 90px -30px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.02); }
+  .browser-bar { display: flex; align-items: center; gap: 6px; padding: 11px 14px; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); }
+  .browser-dot { width: 9px; height: 9px; border-radius: 50%; opacity: 0.85; }
+  .browser-url { margin-left: 10px; background: rgba(255,255,255,0.05); border-radius: 5px; padding: 4px 12px; font-family: 'Space Mono', monospace; font-size: 10.5px; color: var(--text-dim); flex: 1; }
+  .browser-body { padding: 20px; }
+  .hero-kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+  .hero-kpi { background: rgba(255,255,255,0.035); border: 1px solid var(--border); border-radius: 7px; padding: 10px 12px; }
+  .hero-kpi .hk-label { font-family: 'Space Mono', monospace; font-size: 8.5px; color: var(--text-dimmer); letter-spacing: 0.05em; margin-bottom: 4px; }
+  .hero-kpi .hk-val { font-family: 'Archivo', sans-serif; font-size: 17px; font-weight: 800; color: var(--text); }
+
+  /* pricing card — signature element, dark glass */
+  .care-label { background: var(--surface); border: 1px solid var(--border-hi); border-radius: 12px; padding: 26px 24px 24px; position: relative; box-shadow: 0 24px 60px -24px rgba(0,0,0,0.7); }
+  .care-label-dashes { height: 1px; background: repeating-linear-gradient(90deg, var(--border-hi) 0, var(--border-hi) 5px, transparent 5px, transparent 10px); margin: 14px 0; }
+  .care-label-title { font-family: 'Space Mono', monospace; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; color: var(--text-dimmer); text-transform: uppercase; margin-bottom: 10px; }
+  .care-label-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 6px 0; gap: 10px; color: var(--text-dim); }
+  .care-label-row b { font-family: 'Space Mono', monospace; font-weight: 700; color: var(--text); }
+  .dot-check { width: 16px; height: 16px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; color: #0A0D14; flex-shrink: 0; }
+
+  /* ---------- Trust bar ---------- */
+  .trust-bar { display: flex; justify-content: center; gap: 0; flex-wrap: wrap; margin-top: 76px; padding: 22px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .trust-item { display: flex; align-items: center; gap: 10px; padding: 0 32px; border-right: 1px solid var(--border); }
+  .trust-item:last-child { border-right: none; }
+  @media (max-width: 700px) { .trust-item { padding: 8px 18px; border-right: none; } }
+  .trust-item .ti-val { font-family: 'Archivo', sans-serif; font-size: 20px; font-weight: 800; color: var(--text); }
+  .trust-item .ti-label { font-size: 11px; color: var(--text-dimmer); }
+
+  /* ---------- Section head ---------- */
+  .section-head { max-width: 640px; margin-bottom: 48px; }
+  .section-head.center { margin-left: auto; margin-right: auto; text-align: center; max-width: 580px; }
+  .section-head h2 { font-size: clamp(24px, 3.2vw, 34px); font-weight: 800; letter-spacing: -0.015em; margin-bottom: 12px; color: var(--text); }
+  .section-head p { color: var(--text-dim); font-size: 15.5px; }
+
+  /* ---------- Pain points ---------- */
+  .pain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 780px) { .pain-grid { grid-template-columns: 1fr; } }
+  .pain-card { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--coral); border-radius: 10px; padding: 22px 20px 24px; transition: transform .18s ease, border-color .18s ease; }
+  .pain-card:hover { transform: translateY(-3px); border-color: var(--border-hi); }
+  .pain-card .num { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--coral); font-weight: 700; margin-bottom: 10px; }
+  .pain-card h3 { font-size: 16.5px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+  .pain-card p { font-size: 13.5px; color: var(--text-dim); line-height: 1.55; }
+
+  /* ---------- Modules ---------- */
+  .module-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 780px) { .module-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .module-grid { grid-template-columns: 1fr; } }
+  .module-card { background: var(--surface); border: 1px solid var(--border); border-top: 2px solid var(--c, var(--accent)); border-radius: 10px; padding: 18px; transition: transform .18s ease, border-color .18s ease, background .18s ease; }
+  .module-card:hover { transform: translateY(-3px); background: var(--surface-hi); border-color: var(--border-hi); }
+  .module-card .eyebrow-sm { font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--c, var(--accent)); text-transform: uppercase; margin-bottom: 8px; display: block; }
+  .module-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+  .module-card p { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+
+  /* ---------- Positioning ---------- */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface); box-shadow: 0 20px 50px -30px rgba(0,0,0,0.6); }
+  @media (max-width: 700px) { .compare { grid-template-columns: 1fr; } }
+  .compare > div { padding: 28px 26px; }
+  .compare .left { border-right: 1px solid var(--border); background: rgba(255,255,255,0.015); }
+  @media (max-width: 700px) { .compare .left { border-right: none; border-bottom: 1px solid var(--border); } }
+  .compare h4 { font-family: 'Space Mono', monospace; font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 16px; }
+  .compare .left h4 { color: var(--text-dimmer); }
+  .compare .right h4 { color: var(--accent); }
+  .compare ul { list-style: none; }
+  .compare li { font-size: 14px; padding: 7px 0; display: flex; gap: 8px; color: var(--text-dim); }
+  .compare li::before { content: "—"; color: var(--text-dimmer); flex-shrink: 0; }
+  .compare .right li::before { content: "✓"; color: var(--mint); font-weight: 700; }
+  .compare .right li { color: var(--text); }
+  .compare-caption { text-align: center; margin-top: 16px; font-size: 13.5px; color: var(--text-dim); }
+
+  /* ---------- Calculator ---------- */
+  .calc-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 820px) { .calc-wrap { grid-template-columns: 1fr; } }
+  .calc-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 26px; box-shadow: 0 20px 50px -30px rgba(0,0,0,0.6); }
+  .toggle-row { display: flex; gap: 8px; margin-bottom: 20px; }
+  .toggle-btn { flex: 1; padding: 10px; font-family: 'Space Mono', monospace; font-size: 12.5px; font-weight: 700; border-radius: 6px; border: 1px solid var(--border-hi); background: transparent; color: var(--text-dim); cursor: pointer; }
+  .toggle-btn.active { background: var(--accent-dim); color: var(--accent); border-color: var(--accent-line); }
+  .field { margin-bottom: 18px; }
+  .field label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+  .field label .val { font-family: 'Space Mono', monospace; font-weight: 700; color: var(--accent); }
+  input[type="range"] { width: 100%; -webkit-appearance: none; height: 4px; border-radius: 2px; background: var(--border-hi); outline: none; }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); box-shadow: 0 0 0 1px var(--accent); cursor: pointer; }
+  input[type="number"] { width: 100%; padding: 10px 12px; border: 1px solid var(--border-hi); border-radius: 6px; font-size: 14px; font-family: 'Space Mono', monospace; background: rgba(255,255,255,0.03); color: var(--text); }
+  .field-hint { font-size: 11.5px; color: var(--text-dimmer); margin-top: 5px; }
+  .result-card { background: linear-gradient(160deg, #14182B, #0F1219); border: 1px solid var(--border-hi); color: var(--text); border-radius: 12px; padding: 28px 26px; position: sticky; top: 90px; box-shadow: 0 30px 70px -30px rgba(0,0,0,0.8); }
+  .result-label { font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: var(--text-dimmer); text-transform: uppercase; margin-bottom: 6px; }
+  .result-big { font-family: 'Archivo', sans-serif; font-size: 38px; font-weight: 900; margin-bottom: 18px; background: linear-gradient(120deg, var(--gold), var(--coral)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .breakdown-row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 13.5px; border-top: 1px solid var(--border); color: var(--text-dim); }
+  .breakdown-row b { font-family: 'Space Mono', monospace; color: var(--text); }
+  .breakdown-row.total { border-top: 1px solid var(--border-hi); margin-top: 4px; padding-top: 14px; font-weight: 700; font-size: 15px; color: var(--text); }
+  .calc-caption { margin-top: 16px; font-size: 12px; color: var(--text-dimmer); line-height: 1.6; }
+
+  /* ---------- Report mockups ---------- */
+  .mockup-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 18px; align-items: start; }
+  @media (max-width: 820px) { .mockup-grid { grid-template-columns: 1fr; } }
+  .mockup-card { background: var(--surface); border-radius: 12px; overflow: hidden; box-shadow: 0 30px 70px -30px rgba(0,0,0,0.7); border: 1px solid var(--border); }
+  .mockup-inner { padding: 20px 20px 22px; }
+  .mockup-title { font-family: 'Space Mono', monospace; font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; color: var(--text-dimmer); text-transform: uppercase; margin-bottom: 14px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+  .bar-row .bar-label { font-size: 11.5px; width: 92px; flex-shrink: 0; color: var(--text-dim); }
+  .bar-track { flex: 1; height: 9px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; }
+  .bar-row .bar-val { font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; width: 34px; text-align: right; flex-shrink: 0; color: var(--text); }
+  .mock-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 4px; }
+  .mock-table th { text-align: left; font-family: 'Space Mono', monospace; font-size: 9.5px; color: var(--text-dimmer); font-weight: 700; padding: 6px 6px; letter-spacing: 0.04em; border-bottom: 1px solid var(--border); }
+  .mock-table td { padding: 7px 6px; border-bottom: 1px solid var(--border); color: var(--text-dim); }
+  .mock-badge { font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 9px; white-space: nowrap; }
+
+  .exec-mock .em-label { font-family: 'Space Mono', monospace; font-size: 9.5px; color: var(--text-dimmer); letter-spacing: 0.1em; margin-bottom: 4px; }
+  .exec-mock h4 { font-family: 'Archivo', sans-serif; font-size: 17px; font-weight: 800; margin-bottom: 14px; color: var(--text); }
+  .exec-stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .exec-stat { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; }
+  .exec-stat .es-label { font-family: 'Space Mono', monospace; font-size: 8.5px; color: var(--text-dimmer); margin-bottom: 4px; }
+  .exec-stat .es-val { font-family: 'Archivo', sans-serif; font-size: 16px; font-weight: 800; color: var(--text); }
+  .exec-line { display: flex; gap: 8px; font-size: 11.5px; padding: 6px 0; line-height: 1.4; border-top: 1px solid var(--border); color: var(--text-dim); }
+  .exec-line .dot { width: 5px; height: 5px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+  .exec-sub { font-family: 'Space Mono', monospace; font-size: 9.5px; color: var(--text-dimmer); letter-spacing: 0.06em; margin: 12px 0 4px; text-transform: uppercase; }
+
+  /* ---------- ROI ---------- */
+  .roi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+  @media (max-width: 780px) { .roi-grid { grid-template-columns: 1fr; } }
+  .roi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; text-align: center; transition: transform .18s ease, border-color .18s ease; }
+  .roi-card:hover { transform: translateY(-3px); border-color: var(--border-hi); }
+  .roi-card .roi-val { font-family: 'Archivo', sans-serif; font-size: 26px; font-weight: 900; color: var(--mint); margin: 6px 0 4px; }
+  .roi-card .roi-label { font-size: 12.5px; color: var(--text-dim); }
+  .roi-total { background: linear-gradient(135deg, #163325, #0F1219); border: 1px solid rgba(79,203,146,0.3); color: var(--text); border-radius: 12px; padding: 26px; text-align: center; box-shadow: 0 30px 70px -30px rgba(0,0,0,0.7); }
+  .roi-total .roi-total-val { font-family: 'Archivo', sans-serif; font-size: 34px; font-weight: 900; margin: 6px 0; color: var(--mint); }
+  .roi-total .roi-total-label { font-family: 'Space Mono', monospace; font-size: 11.5px; letter-spacing: 0.04em; color: var(--text-dim); }
+  .roi-caption { text-align: center; margin-top: 14px; font-size: 12px; color: var(--text-dimmer); }
+
+  /* ---------- Mediation process compare ---------- */
+  .med-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  @media (max-width: 700px) { .med-compare { grid-template-columns: 1fr; } }
+  .med-track-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 22px 22px 20px; }
+  .med-track-label { font-family: 'Space Mono', monospace; font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; }
+  .med-track { height: 12px; border-radius: 6px; background: rgba(255,255,255,0.06); overflow: hidden; margin-bottom: 10px; }
+  .med-track-fill { height: 100%; border-radius: 6px; }
+  .med-track-val { font-family: 'Archivo', sans-serif; font-size: 22px; font-weight: 800; color: var(--text); }
+  .med-track-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+  /* ---------- Founder note ---------- */
+  .founder-note { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 32px; display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: flex-start; }
+  @media (max-width: 600px) { .founder-note { grid-template-columns: 1fr; } }
+  .founder-mark { width: 46px; height: 46px; border-radius: 50%; background: var(--accent-dim); border: 1px solid var(--accent-line); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .founder-note p { font-size: 16px; color: var(--text); line-height: 1.7; font-family: 'Archivo', sans-serif; font-weight: 600; }
+  .founder-note .attr { font-family: 'Space Mono', monospace; font-size: 11.5px; color: var(--accent); margin-top: 10px; letter-spacing: 0.02em; }
+
+  /* ---------- Pricing ---------- */
+  .pricing-wrap { display: flex; justify-content: center; }
+  .price-label { width: 100%; max-width: 420px; }
+  .price-big { font-family: 'Archivo', sans-serif; font-size: 46px; font-weight: 900; line-height: 1; margin: 4px 0 2px; color: var(--text); }
+  .price-big span { font-size: 16px; font-weight: 600; color: var(--text-dimmer); font-family: 'Space Mono', monospace; }
+  .price-tag { display: inline-block; background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-line); font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 10px; margin-bottom: 10px; }
+
+  /* ---------- Steps ---------- */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  @media (max-width: 780px) { .steps { grid-template-columns: 1fr; } }
+  .step .step-num { font-family: 'Archivo', sans-serif; font-size: 36px; font-weight: 900; margin-bottom: 10px; line-height: 1; }
+  .step:nth-child(1) .step-num { color: var(--gold); }
+  .step:nth-child(2) .step-num { color: var(--accent); }
+  .step:nth-child(3) .step-num { color: var(--mint); }
+  .step h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+  .step p { font-size: 13.5px; color: var(--text-dim); line-height: 1.55; }
+
+  /* ---------- FAQ ---------- */
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-item:first-child { border-top: 1px solid var(--border); }
+  .faq-q { width: 100%; text-align: left; background: none; border: none; cursor: pointer; padding: 18px 4px; font-size: 15.5px; font-weight: 700; font-family: 'Inter', sans-serif; color: var(--text); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .faq-q .plus { font-family: 'Space Mono', monospace; font-size: 18px; color: var(--accent); flex-shrink: 0; transition: transform .15s ease; }
+  .faq-item.open .plus { transform: rotate(45deg); color: var(--coral); }
+  .faq-a { max-height: 0; overflow: hidden; transition: max-height .22s ease; }
+  .faq-a-inner { padding: 0 4px 18px; font-size: 14px; color: var(--text-dim); line-height: 1.6; max-width: 640px; }
+  .faq-item.open .faq-a { max-height: 240px; }
+
+  /* ---------- Final CTA ---------- */
+  .final-cta { text-align: center; padding: 88px 0 104px; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 20px; margin: 0 24px; position: relative; overflow: hidden; }
+  .final-cta::before { content: ""; position: absolute; top: -140px; left: 50%; transform: translateX(-50%); width: 520px; height: 520px; border-radius: 50%; background: radial-gradient(circle, rgba(124,127,255,0.18), transparent 70%); }
+  .final-cta .wrap { max-width: 640px; position: relative; z-index: 1; }
+  .final-cta h2 { font-size: clamp(26px, 4vw, 38px); font-weight: 800; letter-spacing: -0.015em; margin-bottom: 16px; }
+  .final-cta p { color: var(--text-dim); font-size: 15.5px; margin-bottom: 28px; }
+  .final-cta .cta-row { justify-content: center; }
+
+  /* ---------- Footer ---------- */
+  footer { padding: 56px 24px 28px; border-top: 1px solid var(--border); }
+  .footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 40px; max-width: 1120px; margin: 0 auto 32px; }
+  @media (max-width: 700px) { .footer-grid { grid-template-columns: 1fr; gap: 28px; } }
+  .footer-brand { display: flex; align-items: center; gap: 10px; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 15px; margin-bottom: 10px; color: var(--text); }
+  .footer-desc { font-size: 13px; color: var(--text-dimmer); max-width: 320px; line-height: 1.6; }
+  .footer-col h5 { font-family: 'Space Mono', monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dimmer); margin-bottom: 12px; }
+  .footer-col a { display: block; font-size: 13.5px; color: var(--text-dim); text-decoration: none; padding: 5px 0; }
+  .footer-col a:hover { color: var(--text); }
+  .footer-bottom { max-width: 1120px; margin: 0 auto; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .footer-bottom .mono { font-size: 11px; color: var(--text-dimmer); }
+
+  ::selection { background: var(--accent); color: #0A0D14; }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <div class="spool"><span style="background:var(--gold)"></span><span style="background:var(--sky)"></span><span style="background:var(--coral)"></span><span style="background:var(--mint)"></span></div>
+      İK Komuta Merkezi
+    </div>
+    <div class="nav-links">
+      <div class="nav-links-inner" style="display:flex; gap:28px;">
+        <a class="nav-link" href="#ozellikler">Özellikler</a>
+        <a class="nav-link" href="#fiyat">Fiyatlandırma</a>
+        <a class="nav-link" href="#sss">SSS</a>
+      </div>
+      <a class="nav-cta" href="#fiyat">DEMO İSTE →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow"><span class="pulse"></span>Mavi Yaka & Beyaz Yaka Karışık Ekipler İçin</span>
+      <h1 class="hero-title">Patronunuz <em>"Neden bu kadar çok kişi ayrılıyor?"</em> diye sorduğunda, elinizde bir cevap olsun.</h1>
+      <p class="hero-sub">Bordro ve PDKS sisteminizin üzerine oturan bir karar destek paneli. Devir riskini, kıdem tazminatı takvimini, vardiya adaletsizliğini, SGK teşviklerini ve yönetim raporunu — hepsini tek ekranda, tek pakette toplar.</p>
+      <div class="cta-row">
+        <a class="btn-primary" href="#fiyat">Fiyatı Gör</a>
+        <a class="btn-secondary" href="#nasil-calisir">Nasıl Çalışır?</a>
+      </div>
+      <div class="hero-note">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6l-8-4Z"/></svg>
+        Kurulum sizin sisteminize yapılır. Verileriniz hiçbir zaman elimize geçmez.
+      </div>
+    </div>
+
+    <div class="browser-chrome">
+      <div class="browser-bar">
+        <span class="browser-dot" style="background:#5B5F73"></span>
+        <span class="browser-dot" style="background:#5B5F73"></span>
+        <span class="browser-dot" style="background:#5B5F73"></span>
+        <span class="browser-url">app.ikkomuta.com/panel</span>
+      </div>
+      <div class="browser-body">
+        <div class="hero-kpi-row">
+          <div class="hero-kpi"><div class="hk-label">TOPLAM ÇALIŞAN</div><div class="hk-val">150</div></div>
+          <div class="hero-kpi"><div class="hk-label">MAVİ YAKA DEVİR</div><div class="hk-val" style="color:var(--coral)">%56</div></div>
+          <div class="hero-kpi"><div class="hk-label">KIDEM EŞİĞİ</div><div class="hk-val" style="color:var(--gold)">2 acil</div></div>
+        </div>
+        <div class="mockup-title">Departman Bazında Devir Oranı</div>
+        <div class="bar-row"><span class="bar-label">Konfeksiyon</span><div class="bar-track"><div class="bar-fill" style="width:82%; background:var(--coral)"></div></div><span class="bar-val">%51</span></div>
+        <div class="bar-row"><span class="bar-label">Dokuma</span><div class="bar-track"><div class="bar-fill" style="width:68%; background:var(--coral)"></div></div><span class="bar-val">%42</span></div>
+        <div class="bar-row"><span class="bar-label">Lojistik</span><div class="bar-track"><div class="bar-fill" style="width:23%; background:var(--gold)"></div></div><span class="bar-val">%14</span></div>
+        <div class="bar-row" style="margin-bottom:0;"><span class="bar-label">Satış</span><div class="bar-track"><div class="bar-fill" style="width:18%; background:var(--mint)"></div></div><span class="bar-val">%11</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="trust-bar reveal">
+      <div class="trust-item"><div><div class="ti-val">8+</div><div class="ti-label">Modül, Tek Lisans</div></div></div>
+      <div class="trust-item"><div><div class="ti-val">1 gün</div><div class="ti-label">Kurulum Süresi</div></div></div>
+      <div class="trust-item"><div><div class="ti-val">Sınırsız</div><div class="ti-label">Çalışan & Şube</div></div></div>
+      <div class="trust-item"><div><div class="ti-val">%100</div><div class="ti-label">Veri Sizde Kalır</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PAIN POINTS -->
+<section>
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow"><span class="pulse"></span>Tanıdık Geliyor mu?</span>
+      <h2>İK'nın bildiği ama hiçbir sistemin göstermediği şeyler</h2>
+      <p>Her şey kayıtlı ama hiçbiri birbirini konuşmuyor. Bilgi kafanızda ve onlarca Excel sekmesinde dağınık duruyor.</p>
+    </div>
+    <div class="pain-grid reveal">
+      <div class="pain-card">
+        <div class="num">01</div>
+        <h3>Excel'de Kayıp Gerçek</h3>
+        <p>Devamsızlık bir dosyada, vardiya başka bir dosyada, değerlendirme puanları üçüncü bir dosyada. Hiçbiri diğerini bilmiyor.</p>
+      </div>
+      <div class="pain-card">
+        <div class="num">02</div>
+        <h3>Yönetim Toplantısında Sessizlik</h3>
+        <p>"Devir oranımız neden bu kadar yüksek?" sorusu geldiğinde elinizde hazır, sayısal bir cevap yok.</p>
+      </div>
+      <div class="pain-card">
+        <div class="num">03</div>
+        <h3>Kıdem Takvimi Kafanızda</h3>
+        <p>Deneme süresi, 6. ay, 1. yıl kararları not defterinde takip ediliyor. Bir tarih kaçtığında risk şirkete kalıyor.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MODULES -->
+<section id="ozellikler" style="background:var(--bg-alt);">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow"><span class="pulse"></span>Pakette Neler Var</span>
+      <h2>Tek panelde sekiz karar alanı</h2>
+      <p>Her modül, İK'nın günlük hayatta gerçekten karşılaştığı bir soruya cevap verir — hepsi aynı yıllık lisansın içinde.</p>
+    </div>
+    <div class="module-grid reveal">
+      <div class="module-card" style="--c:var(--coral)">
+        <span class="eyebrow-sm">Devir Riski</span>
+        <h4>Kim Ayrılmaya Yakın?</h4>
+        <p>Devamsızlık artışı, kıdem ve mesai yüküne göre risk skoru — ayrılmadan önce müdahale şansı.</p>
+      </div>
+      <div class="module-card" style="--c:var(--sky)">
+        <span class="eyebrow-sm">Kıdem Takvimi</span>
+        <h4>Karar Süresi Kaçmadan</h4>
+        <p>Deneme, 6 ay ve 1 yıl değerlendirmeleri otomatik takip edilir; kıdem eşiğine yaklaşanlar en üstte.</p>
+      </div>
+      <div class="module-card" style="--c:var(--gold)">
+        <span class="eyebrow-sm">Vardiya Adaleti</span>
+        <h4>Kim Fazla Mesaide Yanıyor?</h4>
+        <p>Yasal fazla mesai limitine yaklaşan ya da aşan çalışanlar otomatik işaretlenir.</p>
+      </div>
+      <div class="module-card" style="--c:var(--accent)">
+        <span class="eyebrow-sm">Yedekleme</span>
+        <h4>O Kişi Yarın Gitse Ne Olur?</h4>
+        <p>Kritik pozisyonlardaki her rol için yedek var mı yok mu — operasyonu aksatacak boşluklar önceden görünür.</p>
+      </div>
+      <div class="module-card" style="--c:var(--mint)">
+        <span class="eyebrow-sm">SGK Teşvikleri</span>
+        <h4>Kaçırdığınız Teşvik Var mı?</h4>
+        <p>Firmanızın yararlanabileceği güncel istihdam teşvikleri otomatik işaretlenir, tahmini tasarruf gösterilir.</p>
+      </div>
+      <div class="module-card" style="--c:var(--coral)">
+        <span class="eyebrow-sm">Çoklu Şube</span>
+        <h4>Her Lokasyon Ayrı Görünür</h4>
+        <p>Birden fazla şube/tesisiniz varsa, her biri ayrı filtrelenip karşılaştırılabilir.</p>
+      </div>
+      <div class="module-card" style="--c:var(--sky)">
+        <span class="eyebrow-sm">Çıkış Maliyeti</span>
+        <h4>Bu Ayrılış Kaça Mal Oldu?</h4>
+        <p>Boş kalan pozisyon, işe alım süreci ve oryantasyon kaybını otomatik hesaplar.</p>
+      </div>
+      <div class="module-card" style="--c:var(--gold)">
+        <span class="eyebrow-sm">Yönetici Özeti</span>
+        <h4>Tek Sayfa, Tek Tık</h4>
+        <p>"Patron Raporu Al" butonu; bu ayın maliyeti, riskleri ve alınması gereken kararları özetler.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REPORT MOCKUPS -->
+<section>
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow"><span class="pulse"></span>Ekranlar Böyle Görünüyor</span>
+      <h2>Raporlar hazır, siz sadece bakarsınız</h2>
+      <p>Aşağıdaki iki ekran, panelin gerçek ekranlarının basitleştirilmiş bir önizlemesidir — soldaki günlük panel görünümü, sağdaki yönetim toplantısına doğrudan taşınabilecek "Patron Raporu".</p>
+    </div>
+
+    <div class="mockup-grid reveal">
+      <div class="mockup-card">
+        <div class="browser-bar">
+          <span class="browser-dot" style="background:#5B5F73"></span>
+          <span class="browser-dot" style="background:#5B5F73"></span>
+          <span class="browser-dot" style="background:#5B5F73"></span>
+          <span class="browser-url">app.ikkomuta.com/panel</span>
+        </div>
+        <div class="mockup-inner">
+          <div class="mockup-title">Ayrılma Riski Yüksek Çalışanlar</div>
+          <table class="mock-table">
+            <thead><tr><th>Çalışan</th><th>Departman</th><th>Risk</th><th>Sinyal</th></tr></thead>
+            <tbody>
+              <tr><td>M. Yıldız</td><td>Konfeksiyon</td><td><span class="mock-badge" style="background:rgba(226,102,90,0.15); color:var(--coral)">88</span></td><td>Devamsızlık ↑</td></tr>
+              <tr><td>A. Kaya</td><td>Dokuma</td><td><span class="mock-badge" style="background:rgba(226,102,90,0.15); color:var(--coral)">82</span></td><td>Düşük kıdem</td></tr>
+              <tr><td>E. Çelik</td><td>Satış</td><td><span class="mock-badge" style="background:rgba(232,179,61,0.15); color:var(--gold)">71</span></td><td>Terfi bekleyişi</td></tr>
+            </tbody>
+          </table>
+          <div class="mockup-title" style="margin-top:18px;">Birikmiş İzin Bakiyesi</div>
+          <div class="bar-row"><span class="bar-label">M. Yıldız</span><div class="bar-track"><div class="bar-fill" style="width:95%; background:var(--coral)"></div></div><span class="bar-val">38g</span></div>
+          <div class="bar-row" style="margin-bottom:0;"><span class="bar-label">B. Arslan</span><div class="bar-track"><div class="bar-fill" style="width:70%; background:var(--gold)"></div></div><span class="bar-val">28g</span></div>
+        </div>
+      </div>
+
+      <div class="mockup-card">
+        <div class="browser-bar">
+          <span class="browser-dot" style="background:#5B5F73"></span>
+          <span class="browser-dot" style="background:#5B5F73"></span>
+          <span class="browser-dot" style="background:#5B5F73"></span>
+          <span class="browser-url">Patron Raporu — PDF Önizleme</span>
+        </div>
+        <div class="exec-mock">
+          <div class="mockup-inner">
+            <div class="em-label">YÖNETİM KURULU ÖZETİ</div>
+            <h4>İK Aylık Özeti — Ağustos 2026</h4>
+            <div class="exec-stat-row">
+              <div class="exec-stat"><div class="es-label">İŞGÜCÜ MALİYETİ</div><div class="es-val">5,1M TL</div></div>
+              <div class="exec-stat"><div class="es-label">ENGELLENEN KAYIP</div><div class="es-val" style="color:var(--gold)">217K TL</div></div>
+            </div>
+            <div class="exec-sub">3 Büyük Risk</div>
+            <div class="exec-line"><span class="dot" style="background:var(--coral)"></span><span>2 dosyada kıdem tazminatı eşiği karar süresi doluyor</span></div>
+            <div class="exec-line"><span class="dot" style="background:var(--coral)"></span><span>Engelli kontenjanında 2 kişilik açık, ceza riski var</span></div>
+            <div class="exec-line"><span class="dot" style="background:var(--coral)"></span><span>2 kritik pozisyonda yedek personel yok</span></div>
+            <div class="exec-sub">2 Kritik Karar</div>
+            <div class="exec-line"><span class="dot" style="background:var(--gold)"></span><span>Vardiya/mesai planı yeniden dağıtılmalı</span></div>
+            <div class="exec-line"><span class="dot" style="background:var(--gold)"></span><span>Kritik rollerde çapraz eğitim programı başlatılmalı</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="compare-caption">Bu ekran, tek tık ile PDF olarak alınıp doğrudan yönetim toplantısında sunulabilir — ek bir hazırlık gerekmez.</div>
+  </div>
+</section>
+
+<!-- POSITIONING -->
+<section style="background:var(--bg-alt);">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow"><span class="pulse"></span>Mevcut Sisteminizin Yerine Değil</span>
+      <h2>Bordro programınızı bırakmanıza gerek yok</h2>
+      <p>Kolay İK, bordro yazılımınız ya da PDKS'niz veriyi tutar. Bu panel o veriyi karara çevirir. İkisi rakip değil, tamamlayıcıdır.</p>
+    </div>
+    <div class="compare reveal">
+      <div class="left">
+        <h4>Bordro / PDKS Yazılımınız</h4>
+        <ul>
+          <li>İzin, maaş, giriş-çıkış saatleri</li>
+          <li>Puantaj ve mesai hesaplama</li>
+          <li>Özlük dosyası saklama</li>
+          <li>"Ne oldu" sorusuna cevap verir</li>
+        </ul>
+      </div>
+      <div class="right">
+        <h4>İK Komuta Merkezi</h4>
+        <ul>
+          <li>Kim ayrılmaya yakın, neden</li>
+          <li>Hangi karar tarihi kaçıyor</li>
+          <li>Yönetim ne görmeli, nasıl</li>
+          <li>"Ne yapmalıyım" sorusuna cevap verir</li>
+        </ul>
+      </div>
+    </div>
+    <div class="compare-caption">Mevcut verileriniz (Excel export'ları) panele yüklenir — hiçbir sistemi değiştirmezsiniz.</div>
+  </div>
+</section>
+
+<!-- CALCULATOR DEMO -->
+<section>
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow"><span class="pulse"></span>Pakete Dahil Bir Modülü Deneyin</span>
+      <h2>Bir çalışanın ayrılışı size gerçekte ne kadara mal oluyor?</h2>
+      <p>Çoğu firma yalnızca ilan ve mülakat masrafını görür. Aşağıdaki hesaplama, panelin içinde otomatik çalışan modülün basitleştirilmiş bir önizlemesidir.</p>
+    </div>
+
+    <div class="calc-wrap reveal">
+      <div class="calc-card">
+        <div class="toggle-row">
+          <button class="toggle-btn active" id="btn-mavi" onclick="setYaka('mavi')">Mavi Yaka</button>
+          <button class="toggle-btn" id="btn-beyaz" onclick="setYaka('beyaz')">Beyaz Yaka</button>
+        </div>
+        <div class="field">
+          <label>Aylık Brüt Maaş <span class="val" id="val-maas">25.000 TL</span></label>
+          <input type="range" id="maas" min="20000" max="150000" step="1000" value="25000" oninput="hesapla()" />
+        </div>
+        <div class="field">
+          <label>Pozisyonun Boş Kalma Süresi <span class="val" id="val-bos">30 gün</span></label>
+          <input type="range" id="bosGun" min="0" max="90" step="5" value="30" oninput="hesapla()" />
+        </div>
+        <div class="field">
+          <label>Tam Verime Ulaşma Süresi <span class="val" id="val-oryantasyon">3 ay</span></label>
+          <input type="range" id="oryantasyonAy" min="1" max="9" step="1" value="3" oninput="hesapla()" />
+        </div>
+        <div class="field">
+          <label>Bu Dönemdeki Verim Kaybı <span class="val" id="val-verim">%40</span></label>
+          <input type="range" id="verimKayip" min="10" max="70" step="5" value="40" oninput="hesapla()" />
+        </div>
+        <div class="field">
+          <label>İşe Alım Süreci Maliyeti <span class="val" id="val-alim">15.000 TL</span></label>
+          <input type="number" id="alimMaliyeti" value="15000" oninput="hesapla()" />
+        </div>
+        <div class="field">
+          <label>KKD / Kıyafet-Ekipman Maliyeti <span class="val" id="val-kkd">3.000 TL</span></label>
+          <input type="number" id="kkdMaliyeti" value="3000" oninput="hesapla()" />
+          <div class="field-hint">Yeni personel için baret, iş kıyafeti, eldiven, ayakkabı gibi kişisel koruyucu donanım/ekipman</div>
+        </div>
+      </div>
+
+      <div class="result-card">
+        <div class="result-label">Tahmini Toplam Maliyet</div>
+        <div class="result-big" id="sonuc-toplam">0 TL</div>
+        <div class="breakdown-row"><span>Boş Pozisyon Maliyeti</span><b id="sonuc-bos">0 TL</b></div>
+        <div class="breakdown-row"><span>İşe Alım Süreci</span><b id="sonuc-alim">0 TL</b></div>
+        <div class="breakdown-row"><span>Oryantasyon Verim Kaybı</span><b id="sonuc-oryantasyon">0 TL</b></div>
+        <div class="breakdown-row"><span>KKD / Kıyafet-Ekipman</span><b id="sonuc-kkd">0 TL</b></div>
+        <div class="breakdown-row total"><span>Toplam</span><b id="sonuc-toplam2">0 TL</b></div>
+        <div class="calc-caption">Panelin tam sürümü bu hesaplamayı firmanızın gerçek verileriyle otomatik yapar — her ayrılış için tek tek hesaplamanıza gerek kalmaz.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROI -->
+<section style="background:var(--bg-alt);">
+  <div class="wrap">
+    <div class="section-head center reveal">
+      <span class="eyebrow"><span class="pulse"></span>İK Bir Maliyet Merkezi Değil</span>
+      <h2>Panel, İK'nın şirkete kattığı değeri görünür kılar</h2>
+      <p>Aşağıdaki rakamlar örnek bir senaryodan alınmıştır — panel bu tür fırsatları sizin gerçek verinizle otomatik hesaplar.</p>
+    </div>
+    <div class="roi-grid reveal">
+      <div class="roi-card">
+        <div class="roi-label" style="font-family:'Space Mono',monospace; font-size:11px; color:var(--gold); font-weight:700;">SGK TEŞVİKİ</div>
+        <div class="roi-val">76.000 TL</div>
+        <div class="roi-label">Kaçırılan teşviklerin panel tarafından görünür kılınmasıyla yıllık tasarruf</div>
+      </div>
+      <div class="roi-card">
+        <div class="roi-label" style="font-family:'Space Mono',monospace; font-size:11px; color:var(--coral); font-weight:700;">ARABULUCULUK</div>
+        <div class="roi-val">217.000 TL</div>
+        <div class="roi-label">Dava yerine anlaşmayla kapanan 3 dosyada engellenen dava maliyeti</div>
+      </div>
+      <div class="roi-card">
+        <div class="roi-label" style="font-family:'Space Mono',monospace; font-size:11px; color:var(--sky); font-weight:700;">DEVİR MALİYETİ</div>
+        <div class="roi-val">870.000 TL</div>
+        <div class="roi-label">Panelin görünür kıldığı, önlem alınabilecek yıllık devir maliyeti</div>
+      </div>
+    </div>
+    <div class="roi-total reveal">
+      <div class="roi-total-label">PANELİN GÖSTERDİĞİ TOPLAM FIRSAT</div>
+      <div class="roi-total-val">≈ 1.163.000 TL</div>
+      <div class="roi-total-label">Yıllık 29.900 TL lisans bedelinin ~39 katı</div>
+    </div>
+    <div class="roi-caption">İK burada maliyet yazan değil, bu fırsatları yönetime gösteren birim haline gelir.</div>
+  </div>
+</section>
+
+<!-- MEDIATION PROCESS -->
+<section>
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow"><span class="pulse"></span>217.000 TL Nereden Geliyor?</span>
+      <h2>Arabuluculuk süreci böyle görünüyor</h2>
+      <p>Dava yerine arabulucuda anlaşmak hem daha hızlı hem daha ucuz — panel bu süreci ve sağladığı tasarrufu tek tabloda takip eder.</p>
+    </div>
+
+    <div class="med-compare reveal">
+      <div class="med-track-wrap">
+        <div class="med-track-label" style="color:var(--coral)">ORTALAMA DAVA SÜRECİ</div>
+        <div class="med-track-val">~14 ay</div>
+        <div class="med-track">
+          <div class="med-track-fill" style="width:100%; background:var(--coral)"></div>
+        </div>
+        <div class="med-track-sub">Duruşma takvimi, bilirkişi süreci, temyiz ihtimali — belirsiz ve uzun</div>
+      </div>
+      <div class="med-track-wrap">
+        <div class="med-track-label" style="color:var(--mint)">ORTALAMA ARABULUCULUK SÜRECİ</div>
+        <div class="med-track-val" style="color:var(--mint)">~3 hafta</div>
+        <div class="med-track">
+          <div class="med-track-fill" style="width:12%; background:var(--mint)"></div>
+        </div>
+        <div class="med-track-sub">Tek/birkaç görüşme, karşılıklı anlaşma, dosya kapanır</div>
+      </div>
+    </div>
+
+    <div class="mockup-card reveal">
+      <div class="browser-bar">
+        <span class="browser-dot" style="background:#5B5F73"></span>
+        <span class="browser-dot" style="background:#5B5F73"></span>
+        <span class="browser-dot" style="background:#5B5F73"></span>
+        <span class="browser-url">app.ikkomuta.com/panel — Arabuluculuk Kazanç Tablosu</span>
+      </div>
+      <div class="mockup-inner">
+        <table class="mock-table">
+          <thead><tr><th>Çalışan</th><th>Departman</th><th>Anlaşma Tarihi</th><th>Ödenen</th><th>Tahmini Dava Maliyeti</th><th>Tasarruf</th></tr></thead>
+          <tbody>
+            <tr><td>C. Doğan</td><td>Kalite (Ofis)</td><td>15.05.2026</td><td>38.000 TL</td><td>145.000 TL</td><td style="color:var(--mint); font-weight:700;">107.000 TL</td></tr>
+            <tr><td>E. Yaman</td><td>Konfeksiyon</td><td>22.03.2026</td><td>22.000 TL</td><td>68.000 TL</td><td style="color:var(--mint); font-weight:700;">46.000 TL</td></tr>
+            <tr><td>F. Kılıç</td><td>Lojistik & Tedarik</td><td>10.01.2026</td><td>31.000 TL</td><td>95.000 TL</td><td style="color:var(--mint); font-weight:700;">64.000 TL</td></tr>
+          </tbody>
+        </table>
+        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-top:16px; padding-top:14px; border-top:1px solid var(--border-hi);">
+          <span style="font-size:13px; color:var(--text-dim);">Toplam sağlanan tasarruf (12 ay)</span>
+          <span class="disp" style="font-size:22px; font-weight:800; color:var(--mint);">217.000 TL</span>
+        </div>
+      </div>
+    </div>
+    <div class="compare-caption">Her yeni anlaşma, ödenen tutar ve tahmini dava maliyeti girildiğinde tabloya otomatik eklenir — toplam tasarruf kendiliğinden güncellenir.</div>
+  </div>
+</section>
+
+<!-- FOUNDER NOTE -->
+<section>
+  <div class="wrap">
+    <div class="founder-note reveal">
+      <div class="founder-mark">
+        <div class="spool"><span style="background:var(--gold)"></span><span style="background:var(--sky)"></span></div>
+      </div>
+      <div>
+        <p>"Bu paneli, gerçek bir firmanın İK biriminde her gün yaşanan bir ihtiyaçtan yola çıkarak tasarladık: Excel'ler arasında kaybolan bilgiyi, yönetimin anlayacağı tek bir cevaba dönüştürmek. Saha ekibi olan her sektörde aynı ihtiyaç var — üretim, lojistik, perakende, hizmet."</p>
+        <div class="attr">— İK KOMUTA MERKEZİ EKİBİ</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="fiyat" style="background:var(--bg-alt);">
+  <div class="wrap">
+    <div class="section-head center reveal">
+      <span class="eyebrow"><span class="pulse"></span>Fiyatlandırma</span>
+      <h2>Tek fiyat, tek paket. Şirket büyüklüğü fark etmez.</h2>
+    </div>
+    <div class="pricing-wrap reveal">
+      <div class="care-label price-label">
+        <span class="price-tag">TÜM MODÜLLER DAHİL</span>
+        <div class="care-label-title">Yıllık Lisans</div>
+        <div class="price-big">29.900 TL<span> / yıl</span></div>
+        <div style="font-family:'Space Mono',monospace; font-size:12px; color:var(--mint); font-weight:700; margin-bottom:4px;">≈ günde sadece 82 TL — bir çalışanın bir saatlik maliyeti kadar</div>
+        <div class="care-label-dashes"></div>
+        <div class="care-label-row"><span>Çalışan Sayısı Sınırı</span><b>Yok</b></div>
+        <div class="care-label-row"><span>Şube/Lokasyon Sınırı</span><b>Yok</b></div>
+        <div class="care-label-row"><span>Kurulum</span><b>Dahil</b></div>
+        <div class="care-label-row"><span>Kurulum + Kullanım + Excel Rehberi (PDF)</span><b>Dahil</b></div>
+        <div class="care-label-row"><span>Veri Barındırma</span><b>Sizde</b></div>
+        <div class="care-label-row"><span>Destek</span><b>Mesaj / Form</b></div>
+        <div class="care-label-dashes"></div>
+        <a class="btn-primary" href="#" style="display:block; text-align:center; margin-top:14px;">Demo Talep Et</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="nasil-calisir">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow"><span class="pulse"></span>Kurulum</span>
+      <h2>Üç adımda çalışır hale gelir</h2>
+    </div>
+    <div class="steps reveal">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h4>Talep Edin</h4>
+        <p>Form üzerinden ya da doğrudan mesajla iletişime geçin, firma büyüklüğünüzü paylaşın.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h4>Kurulum</h4>
+        <p>Sistem sizin ortamınıza kurulur, lisans kodunuz aktive edilir — bir gün içinde tamamlanır.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h4>Kullanmaya Başlayın</h4>
+        <p>PDF rehberle mevcut Excel'inizi yükleyin; panel dakikalar içinde dolar, yönetim raporu hazır olur.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="sss" style="background:var(--bg-alt);">
+  <div class="wrap" style="max-width: 760px;">
+    <div class="section-head reveal">
+      <span class="eyebrow"><span class="pulse"></span>Sık Sorulanlar</span>
+      <h2>Merak edilenler</h2>
+    </div>
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <button class="faq-q">Zaten bir bordro/PDKS programımız var, buna neden ihtiyacım olsun? <span class="plus">+</span></button>
+        <div class="faq-a"><div class="faq-a-inner">Çünkü o sistemler veriyi tutar, karara çevirmez. Bu panel mevcut sisteminizin üzerine oturur, verinizi devir riski, kıdem takvimi ve yönetim raporuna dönüştürür. Hiçbir sistemi değiştirmenize gerek yok.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Verilerimiz güvende mi? <span class="plus">+</span></button>
+        <div class="faq-a"><div class="faq-a-inner">Sistem kendi ortamınıza kurulur; çalışan verileriniz her zaman sizde kalır, bize hiçbir zaman ulaşmaz. KVKK sorumluluğu tamamen sizin kontrolünüzdedir.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Çıkış maliyeti hesaplayıcı ayrı mı satılıyor? <span class="plus">+</span></button>
+        <div class="faq-a"><div class="faq-a-inner">Hayır. Yukarıda denediğiniz hesaplayıcı, panelin sekiz modülünden biridir ve tek yıllık lisansın içinde gelir — ayrı bir ürün ya da ek ücret yoktur.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Destek nasıl işliyor? <span class="plus">+</span></button>
+        <div class="faq-a"><div class="faq-a-inner">7/24 canlı destek yoktur. Sorularınızı panel içindeki mesaj/form üzerinden iletirsiniz. Kurulum, kullanım ve Excel yükleme adımlarının büyük kısmı PDF rehberlerle kendi başınıza çözülecek şekilde hazırlanmıştır.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Kaç çalışanlı ya da kaç şubeli firmalar için uygun? <span class="plus">+</span></button>
+        <div class="faq-a"><div class="faq-a-inner">Çalışan sayısı ve şube sayısı fark etmez — fiyat sabittir. Tek lokasyonlu bir işletmeden çok şubeli bir firmalar grubuna kadar aynı yıllık lisansla kullanılır.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section>
+  <div class="final-cta reveal">
+    <div class="wrap">
+      <h2>Bir sonraki yönetim toplantısında elinizde hazır bir cevap olsun.</h2>
+      <p>Demo talebiniz sonrası kısa bir görüşmeyle firmanıza özel kurulumu planlıyoruz.</p>
+      <div class="cta-row">
+        <a class="btn-primary" href="#">Demo Talep Et</a>
+        <a class="btn-secondary" href="#">Sorularım Var</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">
+        <div class="spool"><span style="background:var(--gold)"></span><span style="background:var(--sky)"></span><span style="background:var(--coral)"></span><span style="background:var(--mint)"></span></div>
+        İK Komuta Merkezi
+      </div>
+      <p class="footer-desc">Saha ve ofis ekibi olan firmalar için İK karar destek paneli. Sektörden bağımsız, tek paket, tek fiyat.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Ürün</h5>
+      <a href="#ozellikler">Özellikler</a>
+      <a href="#fiyat">Fiyatlandırma</a>
+      <a href="#nasil-calisir">Nasıl Çalışır</a>
+      <a href="#sss">Sık Sorulanlar</a>
+    </div>
+    <div class="footer-col">
+      <h5>İletişim</h5>
+      <a href="#fiyat">Demo Talep Et</a>
+      <a href="#">Sorularım Var</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="mono">İK KOMUTA MERKEZİ — SAHA VE OFİS EKİBİ OLAN FİRMALAR İÇİN</span>
+    <span class="mono">TEK PAKET · YILLIK 29.900 TL</span>
+  </div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 8);
+  });
+
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach((el) => io.observe(el));
+
+  document.querySelectorAll('.faq-q').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item');
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach((el) => el.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+
+  function fmt(n) { return Math.round(n).toLocaleString('tr-TR') + ' TL'; }
+
+  function setYaka(tip) {
+    document.getElementById('btn-mavi').classList.toggle('active', tip === 'mavi');
+    document.getElementById('btn-beyaz').classList.toggle('active', tip === 'beyaz');
+    const maas = document.getElementById('maas');
+    const alim = document.getElementById('alimMaliyeti');
+    const kkd = document.getElementById('kkdMaliyeti');
+    if (tip === 'mavi') { maas.value = 25000; alim.value = 15000; kkd.value = 3000; }
+    else { maas.value = 55000; alim.value = 45000; kkd.value = 500; }
+    hesapla();
+  }
+
+  function hesapla() {
+    const maas = Number(document.getElementById('maas').value);
+    const bosGun = Number(document.getElementById('bosGun').value);
+    const oryantasyonAy = Number(document.getElementById('oryantasyonAy').value);
+    const verimKayip = Number(document.getElementById('verimKayip').value);
+    const alimMaliyeti = Number(document.getElementById('alimMaliyeti').value);
+    const kkdMaliyeti = Number(document.getElementById('kkdMaliyeti').value);
+
+    document.getElementById('val-maas').textContent = fmt(maas);
+    document.getElementById('val-bos').textContent = bosGun + ' gün';
+    document.getElementById('val-oryantasyon').textContent = oryantasyonAy + ' ay';
+    document.getElementById('val-verim').textContent = '%' + verimKayip;
+    document.getElementById('val-alim').textContent = fmt(alimMaliyeti);
+    document.getElementById('val-kkd').textContent = fmt(kkdMaliyeti);
+
+    const gunlukMaliyet = maas / 30;
+    const bosMaliyet = gunlukMaliyet * bosGun * 0.5;
+    const oryantasyonMaliyet = maas * oryantasyonAy * (verimKayip / 100);
+    const toplam = bosMaliyet + alimMaliyeti + oryantasyonMaliyet + kkdMaliyeti;
+
+    document.getElementById('sonuc-bos').textContent = fmt(bosMaliyet);
+    document.getElementById('sonuc-alim').textContent = fmt(alimMaliyeti);
+    document.getElementById('sonuc-oryantasyon').textContent = fmt(oryantasyonMaliyet);
+    document.getElementById('sonuc-kkd').textContent = fmt(kkdMaliyeti);
+    document.getElementById('sonuc-toplam').textContent = fmt(toplam);
+    document.getElementById('sonuc-toplam2').textContent = fmt(toplam);
+  }
+
+  hesapla();
+</script>
+
+</body>
+</html>
