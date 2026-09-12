@@ -20,7 +20,15 @@
 //     expiresAt tarihinin gecmis oldugu durumlarda devreye girer.
 //   - Yerel gelistirmede (`NODE_ENV !== "production"`) LICENSE_KEY veya
 //     LICENSE_API_URL tanimli degilse kilitlemeden gecilir (db/index.ts'teki
-//     Turso fallback'iyle ayni ruhta - gelistirme akisini bloklamaz).
+//     eski local.db fallback'iyle ayni ruhta - gelistirme akisini bloklamaz).
+//
+// PILOT TEST BYPASS (bkz. lisans.md, kullanici talebi): henuz gercek bir
+// musteri yok, license-api servisi kurulmadan pilot testi acmak icin
+// DISABLE_LICENSE_CHECK=true ortam degiskeni TUM lisans kontrolunu (DB
+// sorgusu dahil) atlar. Gercek dogrulama mantigi (yukaridaki grace period,
+// stale-check vb.) SILINMEDI - bu sadece onun onune gecen, sadece pilot test
+// ortaminda set edilecek ayri bir anahtar. Gercek musteri kurulumlarinda bu
+// degisken hic tanimlanmamali (docs/kurulum-rehberi.md'de gecmiyor - bilerek).
 // ---------------------------------------------------------------------------
 
 import { eq, type InferSelectModel } from "drizzle-orm";
@@ -61,6 +69,10 @@ function computeGate(row: LicenseRow | null, todayIso: string): LicenseGateDecis
 // tazeler, ardindan onbellekten kilit kararini dondurur. `force: true` admin
 // "Şimdi Kontrol Et" butonu icin - staleness'i yok sayip her zaman tazeler.
 export async function getLicenseGate(options?: { force?: boolean }): Promise<LicenseGateDecision> {
+  if (process.env.DISABLE_LICENSE_CHECK === "true") {
+    return { locked: false, reason: null, license: null };
+  }
+
   const envKey = process.env.LICENSE_KEY?.trim();
   const apiUrl = process.env.LICENSE_API_URL?.trim();
   const isDev = process.env.NODE_ENV !== "production";

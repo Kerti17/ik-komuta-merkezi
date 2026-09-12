@@ -17,6 +17,7 @@ export default async function LisansPage() {
   const gate = await getLicenseGate();
   const hasEnvKey = Boolean(process.env.LICENSE_KEY?.trim());
   const hasApiUrl = Boolean(process.env.LICENSE_API_URL?.trim());
+  const bypassActive = process.env.DISABLE_LICENSE_CHECK === "true";
 
   return (
     <div>
@@ -31,6 +32,12 @@ export default async function LisansPage() {
       />
 
       <Card title="Durum">
+        {bypassActive && (
+          <div style={{ marginBottom: 14, padding: "10px 12px", background: "#FBF8EF", border: "1px solid #E9D9A8", borderRadius: 4, fontSize: 12.5, color: "#8a6d1a" }}>
+            Pilot test modu: <code>DISABLE_LICENSE_CHECK</code> aktif, lisans kontrolü tamamen atlanıyor. Gerçek müşteri
+            kurulumlarında bu değişken tanımlanmamalı.
+          </div>
+        )}
         {gate.license ? (
           <div style={{ display: "grid", gap: 10, fontSize: 13 }}>
             <Row label="Durum">
