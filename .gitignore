@@ -11,6 +11,7 @@
 # local env files
 .env
 .env*.local
+vercel-env.txt
 
 # eski Turso/libSQL donemin den kalan yerel dosya veritabani izleri (artik
 # kullanilmiyor - bkz. hata.md, DB Supabase/Postgres'e tasindi) - zararsiz,
