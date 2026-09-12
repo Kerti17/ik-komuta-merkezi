@@ -17,7 +17,7 @@ export default async function LisansPage() {
   const gate = await getLicenseGate();
   const hasEnvKey = Boolean(process.env.LICENSE_KEY?.trim());
   const hasApiUrl = Boolean(process.env.LICENSE_API_URL?.trim());
-  const bypassActive = process.env.DISABLE_LICENSE_CHECK === "true";
+  const bypassActive = process.env.DISABLE_LICENSE_CHECK?.trim().toLowerCase() === "true";
 
   return (
     <div>

@@ -69,7 +69,7 @@ function computeGate(row: LicenseRow | null, todayIso: string): LicenseGateDecis
 // tazeler, ardindan onbellekten kilit kararini dondurur. `force: true` admin
 // "Şimdi Kontrol Et" butonu icin - staleness'i yok sayip her zaman tazeler.
 export async function getLicenseGate(options?: { force?: boolean }): Promise<LicenseGateDecision> {
-  if (process.env.DISABLE_LICENSE_CHECK === "true") {
+  if (process.env.DISABLE_LICENSE_CHECK?.trim().toLowerCase() === "true") {
     return { locked: false, reason: null, license: null };
   }
 
