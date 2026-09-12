@@ -1,20 +1,17 @@
 import "dotenv/config";
 import { defineConfig } from "drizzle-kit";
 
-// Yerel gelistirmede Turso hesabi yoksa drizzle-kit de ayni yerel dosyaya
-// (local.db) karsi calisir - bkz. db/index.ts.
-// "??" degil "||" - bkz. db/index.ts'teki ayni satirin yorumu.
-const url = process.env.TURSO_DATABASE_URL || "file:local.db";
-const authToken = process.env.TURSO_AUTH_TOKEN;
+// "db:generate" bir DB baglantisi gerektirmez (sadece schema.ts'ten SQL uretir),
+// bu yuzden DATABASE_URL henuz ayarlanmamissa da calisabilmesi icin bir
+// placeholder degere dusulur - "db:migrate"/"db:push"/"db:studio" icin gercek
+// bir DATABASE_URL (Supabase Connection string) sarttir.
+const url = process.env.DATABASE_URL || "postgres://placeholder:placeholder@localhost:5432/placeholder";
 
 export default defineConfig({
-  dialect: "turso",
+  dialect: "postgresql",
   schema: "./db/schema.ts",
   out: "./drizzle",
-  dbCredentials: {
-    url,
-    ...(authToken ? { authToken } : {}),
-  },
+  dbCredentials: { url },
   verbose: true,
   strict: true,
 });

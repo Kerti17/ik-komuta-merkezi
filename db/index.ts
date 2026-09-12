@@ -1,33 +1,34 @@
 // ---------------------------------------------------------------------------
-// Turso (libSQL) veritabani baglantisi.
+// Supabase (Postgres) veritabani baglantisi.
 //
-// TURSO_DATABASE_URL/TURSO_AUTH_TOKEN tanimliysa uzak Turso veritabanina baglanir
-// (prod - her musteri kendi Turso hesabinda, bkz. talimat Bolum 2). Tanimli
-// degilse yerel bir libSQL dosyasina ("local.db") baglanir, boylece Turso hesabi
-// olmadan da `npm run dev` ile gelistirme yapilabilir.
+// GECMIS NOT (bkz. hata.md): proje ilk basta Turso/libSQL kullaniyordu; Turso'nun
+// Windows'ta CLI kurulumu WSL gerektirdigi icin Supabase'e gecildi.
+//
+// TEK bir DATABASE_URL ortam degiskeni okunur - Supabase proje ayarlarindaki
+// "Connection string" (URI formati) birebir buraya yapistirilir. Serverless
+// (Vercel) ortamda Supabase'in "Transaction pooler" (port 6543) baglanti
+// dizesinin kullanilmasi ONERILIR - postgres.js istemcisi bu yuzden
+// `prepare: false` ile acilir (PgBouncer'in transaction modu prepared
+// statement desteklemez; dogrudan baglantida da bu ayar zararsizdir).
+//
+// Not: SQLite'daki gibi "hesap yoksa yerel dosyaya otomatik dus" davranisi
+// Postgres icin YOK - DATABASE_URL her zaman gereklidir (yerel gelistirmede de
+// ayni Supabase projesinin baglanti dizesi .env'e konur, bkz. docs/kurulum-rehberi.md).
 // ---------------------------------------------------------------------------
 
-import { createClient } from "@libsql/client";
-import { drizzle } from "drizzle-orm/libsql";
+import postgres from "postgres";
+import { drizzle } from "drizzle-orm/postgres-js";
 import * as schema from "./schema";
 
-// "??" degil "||" - .env.example'i kopyalayip Turso alanlarini BOS BIRAKMAK
-// (dokumante edilen yerel-gelistirme akisi) TURSO_DATABASE_URL'i "" (bos
-// string) yapar, undefined degil - "??" bu durumda fallback'e DUSMEZ.
-const url = process.env.TURSO_DATABASE_URL || "file:local.db";
-const authToken = process.env.TURSO_AUTH_TOKEN;
+const url = process.env.DATABASE_URL;
 
-if (!process.env.TURSO_DATABASE_URL && process.env.NODE_ENV === "production") {
-  // Prod'da yerel dosyaya sessizce dusmek veri kaybina yol acar (bkz. talimat
-  // Bolum 3/12 - Vercel'de ham SQLite dosyasi kalici degildir). Erken uyar.
-  console.warn(
-    "[db] UYARI: TURSO_DATABASE_URL tanimli degil, production ortaminda yerel dosya kullaniliyor. " +
-      "Bu Vercel gibi serverless ortamlarda veri kaybina yol acar - .env dosyasini kontrol edin."
+if (!url) {
+  throw new Error(
+    "[db] DATABASE_URL tanimli degil. Supabase proje ayarlarindaki Connection string'i " +
+      ".env dosyasina (yerelde) veya Vercel Environment Variables'a (production'da) ekleyin."
   );
 }
 
-const client = createClient(
-  authToken ? { url, authToken } : { url }
-);
+const client = postgres(url, { prepare: false });
 
 export const db = drizzle(client, { schema });

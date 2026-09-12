@@ -12,7 +12,9 @@
 .env
 .env*.local
 
-# local dev database (libSQL dosyasi, Turso'nun yerini yerelde tutar)
+# eski Turso/libSQL donemin den kalan yerel dosya veritabani izleri (artik
+# kullanilmiyor - bkz. hata.md, DB Supabase/Postgres'e tasindi) - zararsiz,
+# olasi kalintilar icin kalsin
 *.db
 *.db-journal
 /local.db*

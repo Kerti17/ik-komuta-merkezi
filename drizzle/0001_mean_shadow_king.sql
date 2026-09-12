@@ -1,1 +1,0 @@
-ALTER TABLE `settings` ADD `panel_password_hash` text;

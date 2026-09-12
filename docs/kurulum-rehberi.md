@@ -9,16 +9,21 @@ barındırma hesabınız. Verileriniz sizin dışınızda kimseyle paylaşılmaz
 
 ---
 
-## 1. Turso hesabı ve veritabanı oluşturma
+## 1. Supabase hesabı ve veritabanı oluşturma
 
-Turso, uygulamanın verilerini (çalışan, devamsızlık, değerlendirme vb.) sakladığı ücretsiz
-bulut veritabanı servisidir.
+Supabase, uygulamanın verilerini (çalışan, devamsızlık, değerlendirme vb.) sakladığı ücretsiz
+bulut Postgres veritabanı servisidir.
 
-1. [turso.tech](https://turso.tech) adresinden ücretsiz bir hesap açın.
-2. Yeni bir veritabanı oluşturun (isim önerisi: şirket adınızın kısaltması, ör. `ik-komuta-atas`).
-3. Veritabanı oluşturulduktan sonra şu iki değeri not edin:
-   - **Database URL** (`libsql://...` ile başlar) → bu değeri `TURSO_DATABASE_URL` olarak kullanacaksınız.
-   - **Auth Token** (uzun bir metin) → bu değeri `TURSO_AUTH_TOKEN` olarak kullanacaksınız.
+1. [supabase.com](https://supabase.com) adresinden ücretsiz bir hesap açın (GitHub ile giriş
+   yapabilirsiniz).
+2. **New Project** ile yeni bir proje oluşturun (isim önerisi: şirket adınızın kısaltması, ör.
+   `ik-komuta-atas`), bir veritabanı şifresi belirleyin ve bölge seçin (Vercel'e yakın bir bölge
+   önerilir).
+3. Proje hazır olduktan sonra **Settings → Database → Connection string** sayfasına gidin ve
+   **URI** sekmesinden bağlantı dizesini kopyalayın — tercihen **Transaction pooler** (port
+   `6543`) seçeneğini kullanın, bu Vercel gibi sunucusuz (serverless) ortamlar için önerilir.
+   Kopyaladığınız değerdeki `[YOUR-PASSWORD]` kısmını 2. adımda belirlediğiniz şifreyle
+   değiştirin → bu tam değeri `DATABASE_URL` olarak kullanacaksınız.
 
 ## 2. Vercel'e deploy
 
@@ -35,8 +40,7 @@ değerleri tek tek girin:
 
 | Değişken | Değer | Zorunlu mu? |
 |---|---|---|
-| `TURSO_DATABASE_URL` | 1. adımda aldığınız Database URL | Evet |
-| `TURSO_AUTH_TOKEN` | 1. adımda aldığınız Auth Token | Evet |
+| `DATABASE_URL` | 1. adımda aldığınız Supabase Connection string (URI) | Evet |
 | `AUTH_SECRET` | Rastgele, uzun bir metin (aşağıda üretme yöntemi var) | Evet |
 | `LICENSE_API_URL` | Yazılımı size teslim eden firmadan alacağınız adres | Evet |
 | `LICENSE_KEY` | Satın alma sonrası size verilen lisans anahtarı (`IKKM-XXXX-...`) | Evet |
@@ -68,8 +72,7 @@ npm install
 ```
 
 Proje klasöründe bir `.env` dosyası oluşturup (`.env.example` dosyasını kopyalayabilirsiniz)
-içine 3. adımda Vercel'e girdiğiniz `TURSO_DATABASE_URL` ve `TURSO_AUTH_TOKEN` değerlerini
-yazın, sonra:
+içine 3. adımda Vercel'e girdiğiniz `DATABASE_URL` değerini yazın, sonra:
 
 ```
 npm run db:migrate
@@ -127,8 +130,9 @@ Yönetim ekibine `https://sirketiniz.vercel.app/panel` adresini ve 6.3'te belirl
 
 - **"Lisansınız yapılandırılmamış" ekranı görüyorum**: `LICENSE_KEY` ortam değişkeni
   girilmemiş veya yanlış — 3. adımı kontrol edin.
-- **Giriş sayfası hiç açılmıyor / hata veriyor**: `TURSO_DATABASE_URL`/`TURSO_AUTH_TOKEN`
-  yanlış girilmiş olabilir, Vercel'deki değerleri Turso panelindekilerle karşılaştırın.
+- **Giriş sayfası hiç açılmıyor / hata veriyor**: `DATABASE_URL` yanlış girilmiş olabilir
+  (şifre veya proje adresi hatalı), Vercel'deki değeri Supabase → Settings → Database →
+  Connection string ile karşılaştırın.
 - **Excel yüklerken "Departman tanımlı değil" hatası**: Departman & Şube sayfasından önce
   ilgili departman/şubeyi eklemeniz gerekir (bkz. Excel Şablon Rehberi).
 - Diğer sorunlar için Admin Panel → **Destek** sayfasından mesaj gönderebilirsiniz.
